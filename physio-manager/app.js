@@ -17,7 +17,7 @@ let incomeChart = null;
 let currentFinancePeriod = 'day';
 
 // ===== VERSION CONTROL =====
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.0.0';
 const APP_VERSION_DATE = '2026-01-22';
 const VERSION_CHECK_URL = 'app_versions'; // Supabase table name
 
@@ -78,52 +78,11 @@ function showSplashScreen() {
     }, 2500);
 }
 
-async function checkAuthentication() {
-    // Check for active Supabase session
-    if (supabaseClient) {
-        try {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            
-            if (session) {
-                // Valid session exists
-                const userId = session.user.id;
-                const userEmail = session.user.email;
-                
-                // Get user profile
-                const { data: profile } = await supabaseClient
-                    .from('user_profiles')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .single();
-                
-                currentUser = {
-                    id: userId,
-                    email: userEmail,
-                    name: profile?.name || userEmail.split('@')[0],
-                    role: profile?.role || 'asistente'
-                };
-                currentUserRole = currentUser.role;
-                
-                localStorage.setItem('selah_logged_in', 'true');
-                localStorage.setItem('selah_user', userEmail);
-                localStorage.setItem('selah_user_name', currentUser.name);
-                localStorage.setItem('selah_user_role', currentUserRole);
-                localStorage.setItem('selah_user_id', userId);
-                
-                showApp();
-                return;
-            }
-        } catch (err) {
-            console.log('Session check error:', err);
-        }
-    }
-    
-    // Fallback to localStorage check
+function checkAuthentication() {
     const isLoggedIn = localStorage.getItem('selah_logged_in') === 'true';
     const rememberedUser = localStorage.getItem('selah_user');
     
     if (isLoggedIn && rememberedUser) {
-        currentUserRole = localStorage.getItem('selah_user_role') || 'asistente';
         showApp();
     } else {
         showLoginScreen();
@@ -134,13 +93,9 @@ function showLoginScreen() {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('appContainer').style.display = 'none';
     
-    // Show login form, hide forgot password form
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('forgotPasswordForm').style.display = 'none';
-    
     const rememberedUser = localStorage.getItem('selah_remembered_user');
     if (rememberedUser) {
-        document.getElementById('loginEmail').value = rememberedUser;
+        document.getElementById('loginUser').value = rememberedUser;
         document.getElementById('rememberMe').checked = true;
     }
 }
@@ -148,85 +103,40 @@ function showLoginScreen() {
 async function handleLogin(event) {
     event.preventDefault();
     
-    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const user = document.getElementById('loginUser').value.trim().toLowerCase();
     const pass = document.getElementById('loginPass').value;
     const remember = document.getElementById('rememberMe').checked;
     const errorDiv = document.getElementById('loginError');
-    const successDiv = document.getElementById('loginSuccess');
-    const loginBtn = document.querySelector('#loginForm .login-btn');
+    const loginBtn = document.querySelector('.login-btn');
     
-    errorDiv.textContent = '';
-    successDiv.classList.remove('show');
     loginBtn.textContent = 'Verificando...';
     loginBtn.disabled = true;
     
-    try {
-        if (!supabaseClient) {
-            throw new Error('No hay conexión con el servidor');
-        }
-        
-        // Authenticate with Supabase Auth
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: pass
-        });
-        
-        if (error) {
-            throw error;
-        }
-        
-        // Get user profile with role
-        const { data: profile, error: profileError } = await supabaseClient
-            .from('user_profiles')
-            .select('*')
-            .eq('user_id', data.user.id)
-            .single();
-        
-        if (profileError && profileError.code !== 'PGRST116') {
-            console.log('Profile not found, using default');
-        }
-        
-        const userRole = profile?.role || 'asistente';
-        const userName = profile?.name || data.user.email.split('@')[0];
-        
-        // Store session info
+    const users = await getRegisteredUsers();
+    const foundUser = users.find(u => 
+        (u.username === user || u.email === user) && u.password === pass
+    );
+    
+    if (foundUser) {
+        errorDiv.textContent = '';
         localStorage.setItem('selah_logged_in', 'true');
-        localStorage.setItem('selah_user', data.user.email);
-        localStorage.setItem('selah_user_name', userName);
-        localStorage.setItem('selah_user_role', userRole);
-        localStorage.setItem('selah_user_id', data.user.id);
+        localStorage.setItem('selah_user', foundUser.username);
+        localStorage.setItem('selah_user_name', foundUser.name);
+        localStorage.setItem('selah_user_role', foundUser.role || 'asistente');
         
         if (remember) {
-            localStorage.setItem('selah_remembered_user', email);
+            localStorage.setItem('selah_remembered_user', foundUser.username);
         } else {
             localStorage.removeItem('selah_remembered_user');
         }
         
-        currentUser = {
-            id: data.user.id,
-            email: data.user.email,
-            name: userName,
-            role: userRole
-        };
-        currentUserRole = userRole;
+        currentUser = foundUser;
+        currentUserRole = foundUser.role || 'asistente';
         
         showApp();
-        showToast(`Bienvenido, ${userName}`, 'success');
-        
-    } catch (err) {
-        console.error('Login error:', err);
-        
-        // Translate common errors
-        let errorMessage = 'Error al iniciar sesión';
-        if (err.message.includes('Invalid login credentials')) {
-            errorMessage = 'Correo o contraseña incorrectos';
-        } else if (err.message.includes('Email not confirmed')) {
-            errorMessage = 'Por favor confirma tu correo electrónico';
-        } else if (err.message.includes('No hay conexión')) {
-            errorMessage = 'Sin conexión al servidor';
-        }
-        
-        errorDiv.textContent = errorMessage;
+        showToast(`Bienvenido, ${foundUser.name}`, 'success');
+    } else {
+        errorDiv.textContent = 'Usuario o contraseña incorrectos';
         document.getElementById('loginPass').value = '';
     }
     
@@ -234,74 +144,11 @@ async function handleLogin(event) {
     loginBtn.disabled = false;
 }
 
-// Show/hide login forms
-function showForgotPassword(event) {
-    event.preventDefault();
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('forgotPasswordForm').style.display = 'block';
-    document.getElementById('resetError').textContent = '';
-    document.getElementById('resetSuccess').classList.remove('show');
-}
-
-function showLoginForm() {
-    document.getElementById('forgotPasswordForm').style.display = 'none';
-    document.getElementById('loginForm').style.display = 'block';
-}
-
-async function handleForgotPassword(event) {
-    event.preventDefault();
-    
-    const email = document.getElementById('resetEmail').value.trim();
-    const errorDiv = document.getElementById('resetError');
-    const successDiv = document.getElementById('resetSuccess');
-    const submitBtn = document.querySelector('#forgotPasswordForm .login-btn');
-    
-    errorDiv.textContent = '';
-    successDiv.classList.remove('show');
-    submitBtn.textContent = 'Enviando...';
-    submitBtn.disabled = true;
-    
-    try {
-        if (!supabaseClient) {
-            throw new Error('No hay conexión con el servidor');
-        }
-        
-        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + window.location.pathname
-        });
-        
-        if (error) throw error;
-        
-        successDiv.textContent = '¡Enlace enviado! Revisa tu correo electrónico.';
-        successDiv.classList.add('show');
-        
-    } catch (err) {
-        console.error('Reset password error:', err);
-        errorDiv.textContent = 'Error al enviar el enlace. Verifica el correo.';
-    }
-    
-    submitBtn.textContent = 'Enviar enlace';
-    submitBtn.disabled = false;
-}
-
-async function handleLogout() {
+function handleLogout() {
     if (confirm('¿Deseas cerrar sesión?')) {
-        // Sign out from Supabase
-        if (supabaseClient) {
-            try {
-                await supabaseClient.auth.signOut();
-            } catch (err) {
-                console.log('Logout error:', err);
-            }
-        }
-        
-        // Clear local storage
         localStorage.removeItem('selah_logged_in');
         localStorage.removeItem('selah_user');
         localStorage.removeItem('selah_user_role');
-        localStorage.removeItem('selah_user_id');
-        localStorage.removeItem('selah_user_name');
-        
         currentUser = null;
         currentUserRole = 'asistente';
         document.body.classList.remove('role-admin', 'role-asistente');
@@ -451,100 +298,43 @@ async function saveUser(event) {
     event.preventDefault();
     
     const editId = document.getElementById('editUserId').value;
-    const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
-    const password = document.getElementById('newUserPassword').value;
-    const name = document.getElementById('newUserName').value.trim();
-    const role = document.getElementById('newUserRole').value;
+    const newUser = {
+        name: document.getElementById('newUserName').value.trim(),
+        username: document.getElementById('newUserUsername').value.trim().toLowerCase(),
+        email: document.getElementById('newUserEmail').value.trim().toLowerCase(),
+        password: document.getElementById('newUserPassword').value,
+        role: document.getElementById('newUserRole').value,
+        createdAt: new Date().toISOString()
+    };
     
-    // Validate password strength for new users
-    if (!editId && password.length < 6) {
-        showToast('La contraseña debe tener al menos 6 caracteres', 'error');
+    const users = await getRegisteredUsers();
+    
+    // Check for duplicates (except when editing)
+    const duplicate = users.find(u => 
+        (u.username === newUser.username || u.email === newUser.email) && 
+        u.username !== editId
+    );
+    
+    if (duplicate) {
+        showToast('El usuario o correo ya existe', 'error');
         return;
     }
     
-    const saveBtn = document.querySelector('#userForm button[type="submit"]');
-    if (saveBtn) {
-        saveBtn.textContent = 'Guardando...';
-        saveBtn.disabled = true;
+    if (editId) {
+        const index = users.findIndex(u => u.username === editId);
+        if (index >= 0) {
+            users[index] = { ...users[index], ...newUser };
+        }
+    } else {
+        users.push(newUser);
     }
     
-    try {
-        if (!editId) {
-            // Creating new user with Supabase Auth
-            if (!supabaseClient) {
-                throw new Error('No hay conexión con el servidor');
-            }
-            
-            // Sign up new user
-            const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-                email: email,
-                password: password,
-                options: {
-                    data: {
-                        name: name,
-                        role: role
-                    }
-                }
-            });
-            
-            if (authError) {
-                throw authError;
-            }
-            
-            // Create user profile in profiles table
-            const { error: profileError } = await supabaseClient
-                .from('user_profiles')
-                .insert({
-                    user_id: authData.user.id,
-                    email: email,
-                    name: name,
-                    role: role,
-                    created_at: new Date().toISOString()
-                });
-            
-            if (profileError) {
-                console.log('Profile creation error:', profileError);
-            }
-            
-            showToast('Usuario creado. Se enviará un correo de confirmación.', 'success');
-            
-        } else {
-            // Editing existing user - update profile only
-            const { error } = await supabaseClient
-                .from('user_profiles')
-                .update({
-                    name: name,
-                    role: role
-                })
-                .eq('email', editId);
-            
-            if (error) throw error;
-            
-            showToast('Usuario actualizado', 'success');
-        }
-        
-        closeUserModal();
-        renderUsers();
-        
-    } catch (err) {
-        console.error('Save user error:', err);
-        
-        let errorMessage = 'Error al guardar usuario';
-        if (err.message.includes('already registered')) {
-            errorMessage = 'Este correo ya está registrado';
-        } else if (err.message.includes('valid email')) {
-            errorMessage = 'Ingresa un correo válido';
-        } else if (err.message.includes('Password')) {
-            errorMessage = 'La contraseña debe tener al menos 6 caracteres';
-        }
-        
-        showToast(errorMessage, 'error');
-    }
+    await saveRegisteredUsers(users);
+    await saveUserToSupabase(newUser);
     
-    if (saveBtn) {
-        saveBtn.textContent = 'Guardar';
-        saveBtn.disabled = false;
-    }
+    closeUserModal();
+    renderUsers();
+    showToast('Usuario guardado', 'success');
 }
 
 async function deleteUser() {
