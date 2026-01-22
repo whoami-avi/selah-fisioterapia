@@ -2080,3 +2080,100 @@ body.role-admin .stat-card.admin-only {
         gap: 4px;
     }
 }
+
+
+/* ===== ENHANCED LOGIN STYLES ===== */
+.login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.login-remember {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: var(--text-medium);
+    cursor: pointer;
+}
+
+.forgot-password {
+    font-size: 0.85rem;
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.forgot-password:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.login-hint {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.login-success {
+    color: var(--success);
+    font-size: 0.9rem;
+    margin-top: 12px;
+    text-align: center;
+    padding: 10px;
+    background: var(--success-light);
+    border-radius: var(--radius);
+    display: none;
+}
+
+.login-success.show {
+    display: block;
+}
+
+.login-btn-secondary {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+}
+
+.login-btn-secondary:hover {
+    background: var(--secondary);
+}
+
+.login-error {
+    color: var(--danger);
+    font-size: 0.9rem;
+    margin-top: 12px;
+    text-align: center;
+}
+
+/* Password strength indicator */
+.password-strength {
+    height: 4px;
+    border-radius: 2px;
+    margin-top: 6px;
+    background: var(--border);
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s, background 0.3s;
+}
+
+.password-strength-bar.weak { width: 33%; background: var(--danger); }
+.password-strength-bar.medium { width: 66%; background: var(--warning); }
+.password-strength-bar.strong { width: 100%; background: var(--success); }
