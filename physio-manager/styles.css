@@ -1408,17 +1408,35 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* ========== ADMIN-ONLY ELEMENTS ========== */
+/* ========== ROLE-BASED VISIBILITY ========== */
+/* Admin-only elements - hidden by default */
 .admin-only {
-    display: none;
+    display: none !important;
 }
 
 body.role-admin .admin-only {
-    display: flex;
+    display: flex !important;
 }
 
 body.role-admin .stat-card.admin-only {
-    display: flex;
+    display: flex !important;
+}
+
+body.role-admin .nav-item.admin-only {
+    display: flex !important;
+}
+
+/* Asistente-only elements - hidden by default */
+.asistente-only {
+    display: none !important;
+}
+
+body.role-asistente .asistente-only {
+    display: flex !important;
+}
+
+body.role-asistente .nav-item.asistente-only {
+    display: flex !important;
 }
 
 /* Money stat icon */
@@ -2079,4 +2097,24 @@ body.role-admin .stat-card.admin-only {
         grid-template-columns: 1fr;
         gap: 4px;
     }
+}
+
+
+/* ===== CONNECTION STATUS INDICATOR ===== */
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #10B981;
+}
+
+.status-indicator.online {
+    background: #10B981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.status-indicator.offline {
+    background: #EF4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
 }

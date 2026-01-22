@@ -83,6 +83,13 @@ function checkAuthentication() {
     const rememberedUser = localStorage.getItem('selah_user');
     
     if (isLoggedIn && rememberedUser) {
+        // Cargar el rol del usuario desde localStorage
+        currentUserRole = localStorage.getItem('selah_user_role') || 'asistente';
+        currentUser = {
+            username: rememberedUser,
+            name: localStorage.getItem('selah_user_name') || rememberedUser,
+            role: currentUserRole
+        };
         showApp();
     } else {
         showLoginScreen();
@@ -1134,11 +1141,23 @@ function updateCurrentDate() {
 function updateSettingsStats() {
     const localPatientsEl = document.getElementById('localPatients');
     const localApptsEl = document.getElementById('localAppointments');
-    const pendingSyncEl = document.getElementById('pendingSync');
+    const connectionStatusEl = document.getElementById('connectionStatus');
+    const connectionLabelEl = document.getElementById('connectionLabel');
     
     if (localPatientsEl) localPatientsEl.textContent = patients.length;
     if (localApptsEl) localApptsEl.textContent = appointments.length;
-    if (pendingSyncEl) pendingSyncEl.textContent = pendingChanges.length;
+    
+    // Update connection status
+    if (connectionStatusEl && connectionLabelEl) {
+        const indicator = connectionStatusEl.querySelector('.status-indicator');
+        if (navigator.onLine) {
+            if (indicator) indicator.className = 'status-indicator online';
+            connectionLabelEl.textContent = 'En línea';
+        } else {
+            if (indicator) indicator.className = 'status-indicator offline';
+            connectionLabelEl.textContent = 'Sin conexión';
+        }
+    }
 }
 
 // ===== TOAST NOTIFICATIONS =====
