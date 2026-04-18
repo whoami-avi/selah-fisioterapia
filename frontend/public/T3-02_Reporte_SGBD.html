@@ -505,6 +505,32 @@ const { data, error } = await supabaseClient
         </div>
 
         <!-- ANEXO -->
+        <h2>Anexo: Capturas de pantalla de la aplicacion</h2>
+
+        <h3>Pantalla de Login</h3>
+        <p>Autenticacion con usuario y contrasena almacenados en la tabla <code>users</code> de Supabase.</p>
+        <img src="capturas/01_login.jpg" alt="Login Screen" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin:12px 0 24px;">
+
+        <h3>Dashboard Principal (datos cargados desde Supabase)</h3>
+        <p>Muestra 4 pacientes, 2 citas hoy, $1,400 ingresos. Datos obtenidos en tiempo real desde PostgreSQL.</p>
+        <img src="capturas/02_dashboard.jpg" alt="Dashboard" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin:12px 0 24px;">
+
+        <h3>Gestion de Pacientes (SELECT desde Supabase)</h3>
+        <p>Listado de pacientes con diagnostico, telefono y tipo de terapia. Evidencia de SELECT * FROM patients.</p>
+        <img src="capturas/03_pacientes.jpg" alt="Pacientes" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin:12px 0 24px;">
+
+        <h3>Agenda / Calendario (JOIN appointments + patients)</h3>
+        <p>Vista semanal con citas posicionadas por hora. Demuestra el JOIN entre appointments y patients.</p>
+        <img src="capturas/04_agenda.jpg" alt="Agenda" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin:12px 0 24px;">
+
+        <h3>Finanzas (GROUP BY + SUM + filtros)</h3>
+        <p>Dashboard financiero: $1,400 ingresos totales, $800 pendientes. Consultas con agregacion.</p>
+        <img src="capturas/05_finanzas.jpg" alt="Finanzas" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin:12px 0 24px;">
+
+        <h3>Estado de Conexion (verificacion app &rarr; BD)</h3>
+        <p>Evidencia de conexion exitosa con Supabase. Indica "Conectado" y "Base de datos sincronizada correctamente".</p>
+        <img src="capturas/06_conexion.jpg" alt="Conexion" style="width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);margin:12px 0 24px;">
+
         <h2>Anexo: Tecnologias</h2>
         <table>
             <tr><th>Componente</th><th>Tecnologia</th><th>Version</th></tr>
