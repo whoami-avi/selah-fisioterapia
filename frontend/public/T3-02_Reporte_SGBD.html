@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T3-02 Practica SGBD + Conexion - Selah Fisioterapia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: #f8f9fa;
+            color: #1a1a2e;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 48px 56px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 3px solid #1E5AA8;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            color: #1E5AA8;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 4px;
+        }
+        
+        .header .meta {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+        
+        h2 {
+            font-size: 1.35rem;
+            color: #1E5AA8;
+            margin: 36px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            font-weight: 600;
+        }
+        
+        h3 {
+            font-size: 1.1rem;
+            color: #2d3748;
+            margin: 24px 0 12px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            font-size: 1rem;
+            color: #1E5AA8;
+            margin: 20px 0 8px;
+            font-weight: 600;
+        }
+        
+        p { margin-bottom: 12px; color: #2d3748; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 24px;
+            font-size: 0.88rem;
+        }
+        
+        th {
+            background: #1E5AA8;
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2d3748;
+        }
+        
+        tr:nth-child(even) { background: #f7fafc; }
+        tr:hover { background: #edf2f7; }
+        
+        pre {
+            background: #1a1a2e;
+            color: #e2e8f0;
+            padding: 20px 24px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0 20px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        
+        code {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #edf2f7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.88rem;
+            color: #1E5AA8;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        .sql-keyword { color: #7c3aed; font-weight: 500; }
+        .sql-string { color: #059669; }
+        .sql-comment { color: #718096; font-style: italic; }
+        .sql-type { color: #d97706; }
+        
+        .result-box {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0 20px;
+            font-size: 0.92rem;
+        }
+        
+        .architecture-box {
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            text-align: center;
+            line-height: 2;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        
+        .badge-pk { background: #fef3c7; color: #92400e; }
+        .badge-fk { background: #dbeafe; color: #1e40af; }
+        .badge-check { background: #d1fae5; color: #065f46; }
+        
+        .crud-section {
+            background: #fafafa;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin: 16px 0;
+        }
+        
+        .crud-section h4 {
+            margin-top: 0;
+        }
+        
+        .page-break { page-break-before: always; }
+        
+        @media print {
+            body { padding: 0; background: white; }
+            .container { box-shadow: none; padding: 24px; }
+            pre { font-size: 0.75rem; }
+            h2 { page-break-after: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>T3-02 Practica SGBD + Conexion</h1>
+            <p class="subtitle">Selah Fisioterapia & Recovery</p>
+            <p class="meta">Equipo Selah / TecHome &bull; 18 de abril de 2026</p>
+        </div>
+
+        <p><strong>Entregables:</strong> Reporte breve + scripts SQL (DDL/DML) + evidencia de conexion (capturas) + modulo/snippet de conexion.</p>
+
+        <!-- 1) SGBD -->
+        <h2>1) SGBD seleccionado y justificacion</h2>
+        <p><strong>SGBD:</strong> PostgreSQL (a traves de <strong>Supabase</strong>)</p>
+        <p><strong>URL:</strong> <code>https://uomwyiapknnplqxmglnv.supabase.co</code></p>
+
+        <table>
+            <tr><th>Criterio</th><th>Justificacion</th></tr>
+            <tr><td>Modelo de datos</td><td>Relacional (tablas con PK/FK, restricciones, tipos de datos fuertes)</td></tr>
+            <tr><td>Escalabilidad</td><td>PostgreSQL gestionado en la nube con escalado automatico</td></tr>
+            <tr><td>Tiempo real</td><td>Suscripciones en tiempo real via WebSockets (Supabase Realtime)</td></tr>
+            <tr><td>Seguridad</td><td>Row Level Security (RLS) integrado para control de acceso granular</td></tr>
+            <tr><td>API automatica</td><td>Genera endpoints RESTful automaticamente a partir del esquema</td></tr>
+            <tr><td>Costo</td><td>Plan gratuito suficiente para MVP (500 MB, 50,000 filas)</td></tr>
+            <tr><td>Integracion</td><td>SDK oficial para JavaScript compatible con PWA</td></tr>
+        </table>
+
+        <!-- 2) ESQUEMA DDL -->
+        <h2>2) Esquema (DDL): tablas, PK/FK, restricciones, indices</h2>
+
+        <h3>Diagrama de relaciones</h3>
+        <div class="architecture-box">
+            <strong>users</strong> (autenticacion) &nbsp;&nbsp;|&nbsp;&nbsp;
+            <strong>patients</strong> (1) &mdash;&mdash;&lt; <strong>appointments</strong> (N) &nbsp;&nbsp;|&nbsp;&nbsp;
+            <strong>templates</strong> &nbsp;&nbsp;|&nbsp;&nbsp;
+            <strong>messages</strong>
+        </div>
+
+        <h3>DDL - Tabla <code>users</code></h3>
+<pre><code><span class="sql-comment">-- Usuarios del sistema (admin/asistente)</span>
+<span class="sql-keyword">CREATE TABLE</span> public.users (
+    id            <span class="sql-type">UUID</span> <span class="sql-keyword">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+    username      <span class="sql-type">VARCHAR(50)</span> <span class="sql-keyword">UNIQUE NOT NULL</span>,
+    password_hash <span class="sql-type">VARCHAR(255)</span> <span class="sql-keyword">NOT NULL</span>,
+    role          <span class="sql-type">VARCHAR(20)</span> <span class="sql-keyword">NOT NULL DEFAULT</span> <span class="sql-string">'asistente'</span>
+                  <span class="sql-keyword">CHECK</span> (role <span class="sql-keyword">IN</span> (<span class="sql-string">'admin'</span>, <span class="sql-string">'asistente'</span>)),
+    name          <span class="sql-type">VARCHAR(100)</span> <span class="sql-keyword">NOT NULL</span>,
+    email         <span class="sql-type">VARCHAR(100)</span>,
+    active        <span class="sql-type">BOOLEAN</span> <span class="sql-keyword">DEFAULT</span> true,
+    created_at    <span class="sql-type">TIMESTAMPTZ</span> <span class="sql-keyword">DEFAULT</span> now(),
+    updated_at    <span class="sql-type">TIMESTAMPTZ</span> <span class="sql-keyword">DEFAULT</span> now()
+);
+<span class="sql-keyword">CREATE INDEX</span> idx_users_username <span class="sql-keyword">ON</span> public.users(username);</code></pre>
+
+        <h3>DDL - Tabla <code>patients</code></h3>
+<pre><code><span class="sql-comment">-- Pacientes de la clinica</span>
+<span class="sql-keyword">CREATE TABLE</span> public.patients (
+    id                <span class="sql-type">UUID</span> <span class="sql-keyword">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+    name              <span class="sql-type">VARCHAR(150)</span> <span class="sql-keyword">NOT NULL</span>,
+    phone             <span class="sql-type">VARCHAR(20)</span> <span class="sql-keyword">NOT NULL</span>,
+    email             <span class="sql-type">VARCHAR(100)</span>,
+    birthdate         <span class="sql-type">DATE</span>,
+    occupation        <span class="sql-type">VARCHAR(100)</span>,
+    referrer          <span class="sql-type">VARCHAR(100)</span>,
+    address           <span class="sql-type">TEXT</span>,
+    diagnosis         <span class="sql-type">TEXT</span>,
+    treatment         <span class="sql-type">VARCHAR(100)</span>,
+    notes             <span class="sql-type">TEXT</span>,
+    emergency_contact <span class="sql-type">VARCHAR(100)</span>,
+    emergency_phone   <span class="sql-type">VARCHAR(20)</span>,
+    created_at        <span class="sql-type">TIMESTAMPTZ</span> <span class="sql-keyword">DEFAULT</span> now(),
+    updated_at        <span class="sql-type">TIMESTAMPTZ</span> <span class="sql-keyword">DEFAULT</span> now()
+);
+<span class="sql-keyword">CREATE INDEX</span> idx_patients_name <span class="sql-keyword">ON</span> public.patients(name);
+<span class="sql-keyword">CREATE INDEX</span> idx_patients_created <span class="sql-keyword">ON</span> public.patients(created_at <span class="sql-keyword">DESC</span>);</code></pre>
+
+        <h3>DDL - Tabla <code>appointments</code> (FK &rarr; patients)</h3>
+<pre><code><span class="sql-comment">-- Citas medicas vinculadas a pacientes</span>
+<span class="sql-keyword">CREATE TABLE</span> public.appointments (
+    id            <span class="sql-type">UUID</span> <span class="sql-keyword">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+    patient_id    <span class="sql-type">UUID</span> <span class="sql-keyword">NOT NULL REFERENCES</span> public.patients(id)
+                  <span class="sql-keyword">ON DELETE CASCADE</span>,
+    date          <span class="sql-type">DATE</span> <span class="sql-keyword">NOT NULL</span>,
+    time          <span class="sql-type">VARCHAR(5)</span> <span class="sql-keyword">NOT NULL</span>,
+    duration      <span class="sql-type">INTEGER</span> <span class="sql-keyword">DEFAULT</span> 60,
+    type          <span class="sql-type">VARCHAR(100)</span>,
+    status        <span class="sql-type">VARCHAR(20)</span> <span class="sql-keyword">DEFAULT</span> <span class="sql-string">'scheduled'</span>
+                  <span class="sql-keyword">CHECK</span> (status <span class="sql-keyword">IN</span> (<span class="sql-string">'scheduled'</span>,<span class="sql-string">'confirmed'</span>,
+                        <span class="sql-string">'completed'</span>,<span class="sql-string">'cancelled'</span>,<span class="sql-string">'pending'</span>)),
+    notes         <span class="sql-type">TEXT</span>,
+    costo         <span class="sql-type">NUMERIC(10,2)</span> <span class="sql-keyword">DEFAULT</span> 0,
+    metodo_pago   <span class="sql-type">VARCHAR(20)</span>
+                  <span class="sql-keyword">CHECK</span> (metodo_pago <span class="sql-keyword">IN</span> (<span class="sql-string">'efectivo'</span>,<span class="sql-string">'tarjeta'</span>,<span class="sql-string">'transferencia'</span>)),
+    pago_estado   <span class="sql-type">VARCHAR(20)</span> <span class="sql-keyword">DEFAULT</span> <span class="sql-string">'pendiente'</span>
+                  <span class="sql-keyword">CHECK</span> (pago_estado <span class="sql-keyword">IN</span> (<span class="sql-string">'pagado'</span>,<span class="sql-string">'pendiente'</span>,<span class="sql-string">'parcial'</span>)),
+    created_at    <span class="sql-type">TIMESTAMPTZ</span> <span class="sql-keyword">DEFAULT</span> now(),
+    updated_at    <span class="sql-type">TIMESTAMPTZ</span> <span class="sql-keyword">DEFAULT</span> now()
+);
+<span class="sql-keyword">CREATE INDEX</span> idx_appointments_date <span class="sql-keyword">ON</span> public.appointments(date);
+<span class="sql-keyword">CREATE INDEX</span> idx_appointments_patient <span class="sql-keyword">ON</span> public.appointments(patient_id);
+<span class="sql-keyword">CREATE INDEX</span> idx_appointments_date_status <span class="sql-keyword">ON</span> public.appointments(date, status);</code></pre>
+
+        <h3>Resumen de relaciones</h3>
+        <table>
+            <tr><th>Tabla</th><th>PK</th><th>FK</th><th>Restricciones</th></tr>
+            <tr><td>users</td><td><span class="badge badge-pk">id UUID</span></td><td>&mdash;</td><td><span class="badge badge-check">username UNIQUE</span> <span class="badge badge-check">role CHECK</span></td></tr>
+            <tr><td>patients</td><td><span class="badge badge-pk">id UUID</span></td><td>&mdash;</td><td><span class="badge badge-check">name NOT NULL</span> <span class="badge badge-check">phone NOT NULL</span></td></tr>
+            <tr><td>appointments</td><td><span class="badge badge-pk">id UUID</span></td><td><span class="badge badge-fk">patient_id &rarr; patients(id)</span></td><td><span class="badge badge-check">status CHECK</span> <span class="badge badge-check">pago_estado CHECK</span></td></tr>
+            <tr><td>templates</td><td><span class="badge badge-pk">id UUID</span></td><td>&mdash;</td><td><span class="badge badge-check">name NOT NULL</span></td></tr>
+            <tr><td>messages</td><td><span class="badge badge-pk">id UUID</span></td><td>&mdash;</td><td>&mdash;</td></tr>
+        </table>
+
+        <!-- 3) DML -->
+        <h2 class="page-break">3) Datos de prueba (DML)</h2>
+
+<pre><code><span class="sql-comment">-- USUARIOS</span>
+<span class="sql-keyword">INSERT INTO</span> public.users (username, password_hash, role, name) <span class="sql-keyword">VALUES</span>
+  (<span class="sql-string">'admin'</span>, <span class="sql-string">'selah2024'</span>, <span class="sql-string">'admin'</span>, <span class="sql-string">'Dra. Garcia'</span>),
+  (<span class="sql-string">'selah'</span>, <span class="sql-string">'fisio123'</span>,  <span class="sql-string">'asistente'</span>, <span class="sql-string">'Maria Lopez'</span>);
+
+<span class="sql-comment">-- PACIENTES</span>
+<span class="sql-keyword">INSERT INTO</span> public.patients (name, phone, email, diagnosis, treatment) <span class="sql-keyword">VALUES</span>
+  (<span class="sql-string">'Juan Perez'</span>,             <span class="sql-string">'+525512345678'</span>, <span class="sql-string">'juan@test.com'</span>,
+   <span class="sql-string">'Lumbalgia cronica'</span>,      <span class="sql-keyword">NULL</span>),
+  (<span class="sql-string">'Maria Fernandez Solis'</span>,  <span class="sql-string">'+525598765432'</span>, <span class="sql-string">'maria@test.com'</span>,
+   <span class="sql-string">'Hernia discal'</span>,          <span class="sql-string">'McKenzie'</span>),
+  (<span class="sql-string">'Carlos Rodriguez'</span>,       <span class="sql-string">'+525556789012'</span>, <span class="sql-string">'carlos@test.com'</span>,
+   <span class="sql-string">'Tunel carpiano'</span>,         <span class="sql-string">'Electroterapia'</span>);
+
+<span class="sql-comment">-- CITAS</span>
+<span class="sql-keyword">INSERT INTO</span> public.appointments
+  (patient_id, date, time, type, status, costo, metodo_pago, pago_estado)
+<span class="sql-keyword">VALUES</span>
+  (<span class="sql-string">'cf677...'</span>, <span class="sql-string">'2026-04-18'</span>, <span class="sql-string">'09:00'</span>,
+   <span class="sql-string">'Terapia manual'</span>, <span class="sql-string">'scheduled'</span>, 800, <span class="sql-string">'efectivo'</span>, <span class="sql-string">'pagado'</span>),
+  (<span class="sql-string">'df5c5...'</span>, <span class="sql-string">'2026-04-18'</span>, <span class="sql-string">'10:30'</span>,
+   <span class="sql-string">'McKenzie'</span>, <span class="sql-string">'confirmed'</span>, 800, <span class="sql-string">'tarjeta'</span>, <span class="sql-string">'pendiente'</span>),
+  (<span class="sql-string">'485e6...'</span>, <span class="sql-string">'2026-04-19'</span>, <span class="sql-string">'11:00'</span>,
+   <span class="sql-string">'Electroterapia'</span>, <span class="sql-string">'scheduled'</span>, 600, <span class="sql-string">'transferencia'</span>, <span class="sql-string">'pagado'</span>);</code></pre>
+
+        <!-- 4) CONSULTAS -->
+        <h2>4) Consultas requeridas</h2>
+
+        <h3>Q1 &mdash; JOIN principal: Agenda con datos de paciente</h3>
+        <p><em>Caso de uso: Mostrar la agenda del dia con nombre, telefono y diagnostico de cada paciente.</em></p>
+<pre><code><span class="sql-keyword">SELECT</span>
+    a.date            <span class="sql-keyword">AS</span> fecha,
+    a.time            <span class="sql-keyword">AS</span> hora,
+    p.name            <span class="sql-keyword">AS</span> paciente,
+    p.phone           <span class="sql-keyword">AS</span> telefono,
+    p.diagnosis       <span class="sql-keyword">AS</span> diagnostico,
+    a.type            <span class="sql-keyword">AS</span> tipo_terapia,
+    a.status          <span class="sql-keyword">AS</span> estado,
+    a.costo
+<span class="sql-keyword">FROM</span> appointments a
+<span class="sql-keyword">INNER JOIN</span> patients p <span class="sql-keyword">ON</span> a.patient_id = p.id
+<span class="sql-keyword">WHERE</span> a.date = <span class="sql-string">'2026-04-18'</span>
+<span class="sql-keyword">ORDER BY</span> a.time <span class="sql-keyword">ASC</span>;</code></pre>
+
+        <table>
+            <tr><th>fecha</th><th>hora</th><th>paciente</th><th>telefono</th><th>diagnostico</th><th>tipo_terapia</th><th>estado</th><th>costo</th></tr>
+            <tr><td>2026-04-18</td><td>09:00</td><td>Juan Perez</td><td>+5255123...</td><td>Lumbalgia cronica</td><td>Terapia manual</td><td>scheduled</td><td>800</td></tr>
+            <tr><td>2026-04-18</td><td>10:30</td><td>Maria Fernandez S.</td><td>+5255987...</td><td>Hernia discal</td><td>McKenzie</td><td>confirmed</td><td>800</td></tr>
+        </table>
+
+        <h3>Q2 &mdash; Filtro estado/fecha: Citas pagadas del mes</h3>
+        <p><em>Caso de uso: Reporte financiero de pagos confirmados en abril.</em></p>
+<pre><code><span class="sql-keyword">SELECT</span>
+    a.date            <span class="sql-keyword">AS</span> fecha,
+    p.name            <span class="sql-keyword">AS</span> paciente,
+    a.type            <span class="sql-keyword">AS</span> tipo_terapia,
+    a.costo,
+    a.metodo_pago
+<span class="sql-keyword">FROM</span> appointments a
+<span class="sql-keyword">INNER JOIN</span> patients p <span class="sql-keyword">ON</span> a.patient_id = p.id
+<span class="sql-keyword">WHERE</span> a.pago_estado = <span class="sql-string">'pagado'</span>
+  <span class="sql-keyword">AND</span> a.date <span class="sql-keyword">BETWEEN</span> <span class="sql-string">'2026-04-01'</span> <span class="sql-keyword">AND</span> <span class="sql-string">'2026-04-30'</span>
+<span class="sql-keyword">ORDER BY</span> a.date;</code></pre>
+
+        <table>
+            <tr><th>fecha</th><th>paciente</th><th>tipo_terapia</th><th>costo</th><th>metodo_pago</th></tr>
+            <tr><td>2026-04-18</td><td>Juan Perez</td><td>Terapia manual</td><td>800.00</td><td>efectivo</td></tr>
+            <tr><td>2026-04-19</td><td>Carlos Rodriguez</td><td>Electroterapia</td><td>600.00</td><td>transferencia</td></tr>
+        </table>
+
+        <h3>Q3 &mdash; Reporte/resumen: Ingresos por metodo de pago</h3>
+        <p><em>Caso de uso: Dashboard financiero con totales agrupados.</em></p>
+<pre><code><span class="sql-keyword">SELECT</span>
+    metodo_pago,
+    <span class="sql-keyword">COUNT</span>(*)              <span class="sql-keyword">AS</span> total_citas,
+    <span class="sql-keyword">SUM</span>(costo)            <span class="sql-keyword">AS</span> ingresos_totales,
+    <span class="sql-keyword">ROUND</span>(<span class="sql-keyword">AVG</span>(costo), 2)  <span class="sql-keyword">AS</span> promedio_por_cita
+<span class="sql-keyword">FROM</span> appointments
+<span class="sql-keyword">WHERE</span> pago_estado = <span class="sql-string">'pagado'</span>
+<span class="sql-keyword">GROUP BY</span> metodo_pago
+<span class="sql-keyword">ORDER BY</span> ingresos_totales <span class="sql-keyword">DESC</span>;</code></pre>
+
+        <table>
+            <tr><th>metodo_pago</th><th>total_citas</th><th>ingresos_totales</th><th>promedio_por_cita</th></tr>
+            <tr><td>efectivo</td><td>1</td><td>$800.00</td><td>$800.00</td></tr>
+            <tr><td>transferencia</td><td>1</td><td>$600.00</td><td>$600.00</td></tr>
+        </table>
+
+        <!-- 5) CONEXION -->
+        <h2 class="page-break">5) Conexion app &rarr; BD</h2>
+
+        <h3>Arquitectura de conexion</h3>
+        <div class="architecture-box">
+            <strong>[PWA Frontend]</strong> &rarr; <strong>[Supabase JS SDK]</strong> &rarr; <strong>[Supabase Cloud PostgreSQL]</strong><br>
+            HTML/CSS/JS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; REST API + WebSockets &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uomwyiapknnplqxmglnv.supabase.co
+        </div>
+
+        <h3>Variables de configuracion</h3>
+        <table>
+            <tr><th>Variable</th><th>Valor</th><th>Descripcion</th></tr>
+            <tr><td><code>SUPABASE_URL</code></td><td><code>https://uomwyiapknnplqxmglnv.supabase.co</code></td><td>Endpoint del proyecto</td></tr>
+            <tr><td><code>SUPABASE_KEY</code></td><td><code>eyJhbGciOiJIUzI1NiIs...</code> (anon key)</td><td>Clave publica del cliente</td></tr>
+        </table>
+
+        <h3>Snippet de conexion</h3>
+<pre><code><span class="sql-comment">// Dependencia CDN</span>
+&lt;script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"&gt;&lt;/script&gt;
+
+<span class="sql-comment">// Inicializacion del cliente</span>
+const SUPABASE_URL = 'https://uomwyiapknnplqxmglnv.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIs...';
+
+let supabaseClient = null;
+
+function initSupabase() {
+    if (SUPABASE_URL && SUPABASE_KEY && window.supabase) {
+        supabaseClient = window.supabase.createClient(
+            SUPABASE_URL, SUPABASE_KEY
+        );
+        console.log('Supabase client inicializado');
+        return true;
+    }
+    return false;
+}
+
+<span class="sql-comment">// Verificacion de conexion</span>
+async function testConnection() {
+    const { error } = await supabaseClient
+        .from('patients')
+        .select('count', { count: 'exact', head: true });
+    return !error; <span class="sql-comment">// true = conectado</span>
+}</code></pre>
+
+        <!-- 6) CRUD -->
+        <h2>6) CRUD minimo &mdash; Caso de Uso: Gestion de Pacientes</h2>
+
+        <div class="crud-section">
+            <h4>SELECT &mdash; Listar pacientes</h4>
+<pre><code><span class="sql-comment">// JavaScript (Supabase SDK)</span>
+const { data, error } = await supabaseClient
+    .from('patients')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+<span class="sql-comment">-- SQL equivalente:</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> patients <span class="sql-keyword">ORDER BY</span> created_at <span class="sql-keyword">DESC</span>;</code></pre>
+            <div class="result-box"><strong>Resultado:</strong> 4 pacientes obtenidos correctamente desde Supabase.</div>
+        </div>
+
+        <div class="crud-section">
+            <h4>INSERT &mdash; Registrar nuevo paciente</h4>
+<pre><code>const { data, error } = await supabaseClient
+    .from('patients')
+    .insert([{
+        name: <span class="sql-string">'Ana Martinez'</span>,
+        phone: <span class="sql-string">'+525544556677'</span>,
+        diagnosis: <span class="sql-string">'Esguince de tobillo'</span>,
+        treatment: <span class="sql-string">'Rehabilitacion'</span>
+    }])
+    .select().single();
+
+<span class="sql-comment">-- SQL equivalente:</span>
+<span class="sql-keyword">INSERT INTO</span> patients (name, phone, diagnosis, treatment)
+<span class="sql-keyword">VALUES</span> (<span class="sql-string">'Ana Martinez'</span>, <span class="sql-string">'+525544556677'</span>,
+        <span class="sql-string">'Esguince de tobillo'</span>, <span class="sql-string">'Rehabilitacion'</span>)
+<span class="sql-keyword">RETURNING</span> *;</code></pre>
+            <div class="result-box"><strong>Resultado:</strong> Paciente insertado con UUID autogenerado.</div>
+        </div>
+
+        <div class="crud-section">
+            <h4>UPDATE &mdash; Actualizar notas del paciente</h4>
+<pre><code>const { data, error } = await supabaseClient
+    .from('patients')
+    .update({ notes: <span class="sql-string">'Responde bien al tratamiento'</span> })
+    .eq('id', <span class="sql-string">'cf677621-56c3-40b4-8c23-b3eea0547f1c'</span>)
+    .select().single();
+
+<span class="sql-comment">-- SQL equivalente:</span>
+<span class="sql-keyword">UPDATE</span> patients
+<span class="sql-keyword">SET</span> notes = <span class="sql-string">'Responde bien al tratamiento'</span>
+<span class="sql-keyword">WHERE</span> id = <span class="sql-string">'cf677621-...'</span>
+<span class="sql-keyword">RETURNING</span> *;</code></pre>
+            <div class="result-box"><strong>Resultado:</strong> Campo <code>notes</code> actualizado para Juan Perez.</div>
+        </div>
+
+        <div class="crud-section">
+            <h4>DELETE &mdash; Eliminar paciente (CASCADE a citas)</h4>
+<pre><code>const { error } = await supabaseClient
+    .from('patients')
+    .delete()
+    .eq('id', <span class="sql-string">'fdd73884-c853-435c-abec-2cdad94e6349'</span>);
+
+<span class="sql-comment">-- SQL equivalente:</span>
+<span class="sql-keyword">DELETE FROM</span> patients
+<span class="sql-keyword">WHERE</span> id = <span class="sql-string">'fdd73884-...'</span>;
+<span class="sql-comment">-- Citas asociadas se eliminan por ON DELETE CASCADE</span></code></pre>
+            <div class="result-box"><strong>Resultado:</strong> Paciente eliminado junto con citas asociadas.</div>
+        </div>
+
+        <!-- ANEXO -->
+        <h2>Anexo: Tecnologias</h2>
+        <table>
+            <tr><th>Componente</th><th>Tecnologia</th><th>Version</th></tr>
+            <tr><td>SGBD</td><td>PostgreSQL (Supabase)</td><td>15+</td></tr>
+            <tr><td>SDK Cliente</td><td>@supabase/supabase-js</td><td>2.x</td></tr>
+            <tr><td>Frontend</td><td>HTML5 + CSS3 + JavaScript (PWA)</td><td>ES2022</td></tr>
+            <tr><td>Graficas</td><td>Chart.js</td><td>latest</td></tr>
+            <tr><td>Hosting</td><td>Cloudflare Pages</td><td>&mdash;</td></tr>
+            <tr><td>Dominio</td><td>physiomanager.online</td><td>&mdash;</td></tr>
+        </table>
+
+    </div>
+</body>
+</html>
