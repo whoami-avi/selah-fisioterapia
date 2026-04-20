@@ -663,8 +663,12 @@ function showSplashScreen() {
     const splash = document.getElementById('splashScreen');
     const statusText = splash.querySelector('.splash-status');
     
-    setTimeout(() => { statusText.textContent = 'Verificando sesión...'; }, 500);
-    setTimeout(() => { statusText.textContent = 'Cargando datos...'; }, 1200);
+    setTimeout(() => { statusText.textContent = 'Conectando base de datos...'; }, 500);
+    setTimeout(() => {
+        // Initialize Supabase EARLY so it's ready before login
+        initSupabase();
+        statusText.textContent = 'Verificando sesión...';
+    }, 1000);
     setTimeout(() => { statusText.textContent = 'Preparando interfaz...'; }, 1800);
     
     setTimeout(() => {
@@ -794,8 +798,8 @@ function handleLogout() {
 // ===== USER MANAGEMENT =====
 async function getRegisteredUsers() {
     const defaultUsers = [
-        { username: 'admin', password: 'selah2024', name: 'Administrador', email: 'admin@selah.com', role: 'admin' },
-        { username: 'selah', password: 'fisio123', name: 'Selah Fisio', email: 'info@selah.com', role: 'asistente' }
+        { username: 'admin', password: 'selah2024', password_hash: 'selah2024', name: 'Administrador', email: 'admin@selah.com', role: 'admin' },
+        { username: 'selah', password: 'fisio123', password_hash: 'fisio123', name: 'Selah Fisio', email: 'info@selah.com', role: 'asistente' }
     ];
     
     if (supabaseClient && isOnline) {
@@ -805,6 +809,8 @@ async function getRegisteredUsers() {
                 .select('*');
             
             if (!error && data && data.length > 0) {
+                // Cache Supabase users to localStorage for offline fallback
+                localStorage.setItem('selah_users', JSON.stringify(data));
                 return data;
             }
         } catch (e) {
