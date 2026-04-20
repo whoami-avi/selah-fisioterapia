@@ -83,6 +83,40 @@ let pendingChanges = [];
 let messageHistory = [];
 let isDataLoaded = false;
 
+// ===== DATA MAPPING (Supabase DB columns <-> App JS properties) =====
+function mapPatientFromSupabase(p) {
+    return {
+        ...p,
+        therapyType: p.treatment || p.therapyType || null,
+        bodyZone: p.body_zone || p.bodyZone || null,
+        sessions: p.sessions || 0,
+        medicalHistory: p.medical_history || p.medicalHistory || null,
+        reason: p.reason || null,
+    };
+}
+
+function mapAppointmentFromSupabase(a) {
+    // Map status values: DB may use 'scheduled' -> app uses 'confirmed'
+    let status = a.status;
+    if (status === 'scheduled') status = 'confirmed';
+
+    // Map payment status: DB may use 'pagado' -> app uses 'paid'
+    let paymentStatus = a.pago_estado || a.paymentStatus || 'pending';
+    if (paymentStatus === 'pagado') paymentStatus = 'paid';
+    if (paymentStatus === 'pendiente') paymentStatus = 'pending';
+    if (paymentStatus === 'parcial') paymentStatus = 'partial';
+
+    return {
+        ...a,
+        patientId: a.patient_id || a.patientId,
+        therapy: a.type || a.therapy || null,
+        cost: a.costo || a.cost || 0,
+        paymentMethod: a.metodo_pago || a.paymentMethod || '',
+        paymentStatus: paymentStatus,
+        status: status,
+    };
+}
+
 // ===== SUPABASE DATA SERVICE =====
 async function loadDataFromSupabase() {
     console.log('📡 loadDataFromSupabase - supabaseClient:', !!supabaseClient);
@@ -102,7 +136,7 @@ async function loadDataFromSupabase() {
 
         console.log('📥 Pacientes response - data:', patientsData?.length, 'error:', patientsError);
         if (patientsError) throw patientsError;
-        patients = patientsData || [];
+        patients = (patientsData || []).map(mapPatientFromSupabase);
 
         // Load appointments
         console.log('📥 Cargando citas...');
@@ -113,7 +147,7 @@ async function loadDataFromSupabase() {
 
         console.log('📥 Citas response - data:', appointmentsData?.length, 'error:', appointmentsError);
         if (appointmentsError) throw appointmentsError;
-        appointments = appointmentsData || [];
+        appointments = (appointmentsData || []).map(mapAppointmentFromSupabase);
 
         // Load templates
         console.log('📥 Cargando plantillas...');
@@ -216,9 +250,9 @@ function handleRealtimeChange(table, payload) {
         case 'INSERT':
             // Check if already exists (avoid duplicates)
             if (table === 'patients' && !patients.find(p => p.id === newRecord.id)) {
-                patients.unshift(newRecord);
+                patients.unshift(mapPatientFromSupabase(newRecord));
             } else if (table === 'appointments' && !appointments.find(a => a.id === newRecord.id)) {
-                appointments.push(newRecord);
+                appointments.push(mapAppointmentFromSupabase(newRecord));
                 appointments.sort((a, b) => new Date(a.date) - new Date(b.date));
             } else if (table === 'templates' && !templates.find(t => t.id === newRecord.id)) {
                 templates.unshift(newRecord);
@@ -230,10 +264,10 @@ function handleRealtimeChange(table, payload) {
         case 'UPDATE':
             if (table === 'patients') {
                 const pIndex = patients.findIndex(p => p.id === newRecord.id);
-                if (pIndex !== -1) patients[pIndex] = newRecord;
+                if (pIndex !== -1) patients[pIndex] = mapPatientFromSupabase(newRecord);
             } else if (table === 'appointments') {
                 const aIndex = appointments.findIndex(a => a.id === newRecord.id);
-                if (aIndex !== -1) appointments[aIndex] = newRecord;
+                if (aIndex !== -1) appointments[aIndex] = mapAppointmentFromSupabase(newRecord);
             } else if (table === 'templates') {
                 const tIndex = templates.findIndex(t => t.id === newRecord.id);
                 if (tIndex !== -1) templates[tIndex] = newRecord;
@@ -299,16 +333,19 @@ async function savePatientToSupabase(patientData) {
         
         if (error) throw error;
         
+        // Map response back to app format
+        const mappedData = mapPatientFromSupabase(data);
+        
         // Update local state
         const existingIndex = patients.findIndex(p => p.id === patientData.id);
         if (existingIndex !== -1) {
-            patients[existingIndex] = data;
+            patients[existingIndex] = mappedData;
         } else {
-            patients.unshift(data);
+            patients.unshift(mappedData);
         }
         
         saveToLocalStorage();
-        return data;
+        return mappedData;
     } catch (error) {
         console.error('Error guardando paciente:', error);
         // Save locally as fallback
@@ -344,9 +381,10 @@ async function updatePatientInSupabase(patientId, updates) {
         if (error) throw error;
 
         console.log('✅ Paciente actualizado:', data);
+        const mappedData = mapPatientFromSupabase(data);
         const index = patients.findIndex(p => p.id === patientId);
         if (index !== -1) {
-            patients[index] = data;
+            patients[index] = mappedData;
         }
 
         saveToLocalStorage();
@@ -404,10 +442,11 @@ async function saveAppointmentToSupabase(appointmentData) {
         
         if (error) throw error;
         
-        appointments.push(data);
+        const mappedData = mapAppointmentFromSupabase(data);
+        appointments.push(mappedData);
         appointments.sort((a, b) => new Date(a.date) - new Date(b.date));
         saveToLocalStorage();
-        return data;
+        return mappedData;
     } catch (error) {
         console.error('Error guardando cita:', error);
         appointments.push(appointmentData);
@@ -430,22 +469,26 @@ async function updateAppointmentInSupabase(appointmentId, updates) {
     }
     
     try {
+        // Remove client-side fields before sending to Supabase
+        const { patientId, therapy, cost, paymentMethod, paymentStatus, ...dbData } = updateData;
+        
         const { data, error } = await supabaseClient
             .from('appointments')
-            .update(updateData)
+            .update(dbData)
             .eq('id', appointmentId)
             .select()
             .single();
         
         if (error) throw error;
         
+        const mappedData = mapAppointmentFromSupabase(data);
         const index = appointments.findIndex(a => a.id === appointmentId);
         if (index !== -1) {
-            appointments[index] = data;
+            appointments[index] = mappedData;
         }
         
         saveToLocalStorage();
-        return data;
+        return mappedData;
     } catch (error) {
         console.error('Error actualizando cita:', error);
         const index = appointments.findIndex(a => a.id === appointmentId);
@@ -489,9 +532,15 @@ async function saveTemplateToSupabase(templateData) {
     }
     
     try {
+        // Remove client-generated id if it's not a UUID format
+        const dataToSend = { ...templateData };
+        if (dataToSend.id && typeof dataToSend.id === 'number') {
+            delete dataToSend.id; // Let Supabase generate UUID
+        }
+        
         const { data, error } = await supabaseClient
             .from('templates')
-            .insert([templateData])
+            .insert([dataToSend])
             .select()
             .single();
         
@@ -614,8 +663,12 @@ function showSplashScreen() {
     const splash = document.getElementById('splashScreen');
     const statusText = splash.querySelector('.splash-status');
     
-    setTimeout(() => { statusText.textContent = 'Verificando sesión...'; }, 500);
-    setTimeout(() => { statusText.textContent = 'Cargando datos...'; }, 1200);
+    setTimeout(() => { statusText.textContent = 'Conectando base de datos...'; }, 500);
+    setTimeout(() => {
+        // Initialize Supabase EARLY so it's ready before login
+        initSupabase();
+        statusText.textContent = 'Verificando sesión...';
+    }, 1000);
     setTimeout(() => { statusText.textContent = 'Preparando interfaz...'; }, 1800);
     
     setTimeout(() => {
@@ -660,7 +713,7 @@ async function handleLogin(event) {
     
     const users = await getRegisteredUsers();
     const foundUser = users.find(u => 
-        (u.username === user || u.email === user) && u.password === pass
+        (u.username === user || u.email === user) && (u.password === pass || u.password_hash === pass)
     );
     
     if (foundUser) {
@@ -745,8 +798,8 @@ function handleLogout() {
 // ===== USER MANAGEMENT =====
 async function getRegisteredUsers() {
     const defaultUsers = [
-        { username: 'admin', password: 'selah2024', name: 'Administrador', email: 'admin@selah.com', role: 'admin' },
-        { username: 'selah', password: 'fisio123', name: 'Selah Fisio', email: 'info@selah.com', role: 'asistente' }
+        { username: 'admin', password: 'selah2024', password_hash: 'selah2024', name: 'Administrador', email: 'admin@selah.com', role: 'admin' },
+        { username: 'selah', password: 'fisio123', password_hash: 'fisio123', name: 'Selah Fisio', email: 'info@selah.com', role: 'asistente' }
     ];
     
     if (supabaseClient && isOnline) {
@@ -756,6 +809,8 @@ async function getRegisteredUsers() {
                 .select('*');
             
             if (!error && data && data.length > 0) {
+                // Cache Supabase users to localStorage for offline fallback
+                localStorage.setItem('selah_users', JSON.stringify(data));
                 return data;
             }
         } catch (e) {
@@ -1557,7 +1612,7 @@ async function pullFromSupabase() {
             .order('created_at', { ascending: false });
         
         if (!patientsError && cloudPatients) {
-            const mergedPatients = mergeData(patients, cloudPatients);
+            const mergedPatients = mergeData(patients, cloudPatients.map(mapPatientFromSupabase));
             patients = mergedPatients;
             saveLocalData();
         }
@@ -1568,7 +1623,7 @@ async function pullFromSupabase() {
             .order('date', { ascending: true });
         
         if (!appointmentsError && cloudAppointments) {
-            const mergedAppointments = mergeData(appointments, cloudAppointments);
+            const mergedAppointments = mergeData(appointments, cloudAppointments.map(mapAppointmentFromSupabase));
             appointments = mergedAppointments;
             saveLocalData();
         }
@@ -1703,6 +1758,14 @@ function initNavigation() {
             const sectionId = this.dataset.section;
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
+            
+            // Close sidebar on mobile after navigation
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar && window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+                if (overlay) overlay.style.display = 'none';
+            }
             
             if (sectionId === 'dashboard') renderDashboard();
             if (sectionId === 'agenda') renderCalendar();
@@ -2151,7 +2214,7 @@ function filterPatients() {
     
     const filtered = patients.filter(p => {
         const matchName = p.name.toLowerCase().includes(search);
-        const matchTherapy = !therapyFilter || p.therapyType === therapyFilter;
+        const matchTherapy = !therapyFilter || p.therapyType === therapyFilter || p.treatment === therapyFilter;
         return matchName && matchTherapy;
     });
     
@@ -2238,10 +2301,10 @@ function editPatient(id) {
     document.getElementById('patientReferrer').value = patient.referrer || '';
     document.getElementById('patientAddress').value = patient.address || '';
     document.getElementById('patientDiagnosis').value = patient.diagnosis || '';
-    document.getElementById('patientBodyZone').value = patient.bodyZone || '';
-    document.getElementById('patientTherapyType').value = patient.therapyType || '';
+    document.getElementById('patientBodyZone').value = patient.bodyZone || patient.body_zone || '';
+    document.getElementById('patientTherapyType').value = patient.therapyType || patient.treatment || '';
     document.getElementById('patientSessions').value = patient.sessions || 0;
-    document.getElementById('patientMedicalHistory').value = patient.medicalHistory || '';
+    document.getElementById('patientMedicalHistory').value = patient.medicalHistory || patient.medical_history || '';
     document.getElementById('patientReason').value = patient.reason || '';
     document.getElementById('patientNotes').value = patient.notes || '';
     
@@ -2335,23 +2398,26 @@ function editAppointment(id) {
     document.getElementById('deleteAppointmentBtn').style.display = 'block';
     
     document.getElementById('appointmentId').value = appt.id;
-    document.getElementById('appointmentPatient').value = appt.patientId;
+    document.getElementById('appointmentPatient').value = appt.patientId || appt.patient_id;
     document.getElementById('appointmentDate').value = appt.date;
     document.getElementById('appointmentTime').value = appt.time;
     document.getElementById('appointmentDuration').value = appt.duration || 60;
     document.getElementById('appointmentStatus').value = appt.status;
-    document.getElementById('appointmentTherapy').value = appt.therapy || '';
-    document.getElementById('appointmentCost').value = appt.cost || '';
-    document.getElementById('appointmentPaymentMethod').value = appt.paymentMethod || '';
-    document.getElementById('appointmentPaymentStatus').value = appt.paymentStatus || 'pending';
+    document.getElementById('appointmentTherapy').value = appt.therapy || appt.type || '';
+    document.getElementById('appointmentCost').value = appt.cost || appt.costo || '';
+    document.getElementById('appointmentPaymentMethod').value = appt.paymentMethod || appt.metodo_pago || '';
+    document.getElementById('appointmentPaymentStatus').value = appt.paymentStatus || appt.pago_estado || 'pending';
     document.getElementById('appointmentNotes').value = appt.notes || '';
 }
 
-function saveAppointment(event) {
+async function saveAppointment(event) {
     event.preventDefault();
     
     const existingId = document.getElementById('appointmentId').value;
     const id = existingId || crypto.randomUUID();
+    
+    // Map payment status back to DB format
+    let pagoEstado = document.getElementById('appointmentPaymentStatus').value;
     
     const apptData = {
         id,
@@ -2363,7 +2429,7 @@ function saveAppointment(event) {
         status: document.getElementById('appointmentStatus').value,
         costo: parseFloat(document.getElementById('appointmentCost').value) || 0,
         metodo_pago: document.getElementById('appointmentPaymentMethod').value,
-        pago_estado: document.getElementById('appointmentPaymentStatus').value,
+        pago_estado: pagoEstado,
         notes: document.getElementById('appointmentNotes').value,
         created_at: existingId ? (appointments.find(a => a.id === existingId)?.created_at || new Date().toISOString()) : new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -2834,7 +2900,7 @@ function applyUpdate() {
     // For PWA, this will reload and fetch the new cached version
     // The service worker should handle caching the new files
     
-    showNotification('Actualizando aplicación...', 'info');
+    showToast('Actualizando aplicación...', 'info');
     
     // Clear caches and reload
     if ('caches' in window) {
@@ -2859,12 +2925,12 @@ function applyUpdate() {
 // Developer function to publish new version (Admin only)
 async function publishNewVersion(version, notes) {
     if (currentUserRole !== 'admin') {
-        showNotification('Solo administradores pueden publicar versiones', 'error');
+        showToast('Solo administradores pueden publicar versiones', 'error');
         return;
     }
     
     if (!supabaseClient) {
-        showNotification('No hay conexión a la base de datos', 'error');
+        showToast('No hay conexión a la base de datos', 'error');
         return;
     }
     
@@ -2880,10 +2946,10 @@ async function publishNewVersion(version, notes) {
         
         if (error) throw error;
         
-        showNotification(`Versión ${version} publicada exitosamente`, 'success');
+        showToast(`Versión ${version} publicada exitosamente`, 'success');
         return true;
     } catch (err) {
-        showNotification('Error al publicar versión: ' + err.message, 'error');
+        showToast('Error al publicar versión: ' + err.message, 'error');
         return false;
     }
 }
