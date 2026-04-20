@@ -1759,6 +1759,14 @@ function initNavigation() {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             
+            // Close sidebar on mobile after navigation
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar && window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+                if (overlay) overlay.style.display = 'none';
+            }
+            
             if (sectionId === 'dashboard') renderDashboard();
             if (sectionId === 'agenda') renderCalendar();
             if (sectionId === 'patients') renderPatients();
