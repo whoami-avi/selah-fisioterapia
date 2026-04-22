@@ -17,8 +17,18 @@
 const { createClient } = require('@supabase/supabase-js');
 const { randomUUID } = require('crypto');
 
-const SUPABASE_URL = 'https://uomwyiapknnplqxmglnv.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvbXd5aWFwa25ucGxxeG1nbG52Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwNDI3NjgsImV4cCI6MjA4NDYxODc2OH0.GIv1VcTjGxnNV2RnNBrtgC-I1yOp5Bu_ulA0DiS0A1U';
+// Lee credenciales desde variables de entorno. Ejemplo de uso:
+//   SUPABASE_URL=https://xxx.supabase.co SUPABASE_ANON_KEY=ey... node check_rls.js
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.error('❌ Faltan variables de entorno. Ejecuta:');
+    console.error('   SUPABASE_URL=https://tuproyecto.supabase.co \\');
+    console.error('   SUPABASE_ANON_KEY=tu-anon-key \\');
+    console.error('   node check_rls.js');
+    process.exit(1);
+}
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
