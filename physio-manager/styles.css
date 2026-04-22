@@ -2684,3 +2684,25 @@ body.role-admin .stat-card.admin-only {
         border-color: var(--danger);
     }
 }
+
+/* ===== Loading spinner for save buttons ===== */
+.btn-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    vertical-align: -2px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: btn-spin 0.7s linear infinite;
+}
+
+button[data-loading="true"] {
+    cursor: wait !important;
+    opacity: 0.85;
+}
+
+@keyframes btn-spin {
+    to { transform: rotate(360deg); }
+}

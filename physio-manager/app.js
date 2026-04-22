@@ -2421,6 +2421,20 @@ function editAppointment(id) {
 async function saveAppointment(event) {
     event.preventDefault();
     
+    const form = event.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const deleteBtn = document.getElementById('deleteAppointmentBtn');
+    const originalSubmitText = submitBtn ? submitBtn.innerHTML : '';
+    
+    // Loading state: disable form + show spinner
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.setAttribute('data-loading', 'true');
+        submitBtn.innerHTML = '<span class="btn-spinner" aria-hidden="true"></span> Guardando...';
+    }
+    if (deleteBtn) deleteBtn.disabled = true;
+    form.querySelectorAll('input, select, textarea').forEach(el => { el.disabled = true; });
+    
     const existingId = document.getElementById('appointmentId').value;
     const id = existingId || crypto.randomUUID();
     
@@ -2443,22 +2457,36 @@ async function saveAppointment(event) {
         updated_at: new Date().toISOString()
     };
     
-    // Use Supabase (or fallback to local) - await para que el dashboard se actualice con los datos ya persistidos
-    if (existingId) {
-        await updateAppointmentInSupabase(id, apptData);
-    } else {
-        await saveAppointmentToSupabase(apptData);
+    try {
+        // Use Supabase (or fallback to local) - await para que el dashboard se actualice con los datos ya persistidos
+        if (existingId) {
+            await updateAppointmentInSupabase(id, apptData);
+        } else {
+            await saveAppointmentToSupabase(apptData);
+        }
+        
+        closeAppointmentModal();
+        renderCalendar();
+        renderDashboard();
+        
+        if (currentUserRole === 'admin') {
+            renderFinances();
+        }
+        
+        showToast('Cita guardada', 'success');
+    } catch (err) {
+        console.error('Error al guardar cita:', err);
+        showToast('Error al guardar la cita. Inténtalo de nuevo.', 'error');
+    } finally {
+        // Restore form state (en caso de error para permitir reintentar)
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.removeAttribute('data-loading');
+            submitBtn.innerHTML = originalSubmitText;
+        }
+        if (deleteBtn) deleteBtn.disabled = false;
+        form.querySelectorAll('input, select, textarea').forEach(el => { el.disabled = false; });
     }
-    
-    closeAppointmentModal();
-    renderCalendar();
-    renderDashboard();
-    
-    if (currentUserRole === 'admin') {
-        renderFinances();
-    }
-    
-    showToast('Cita guardada', 'success');
 }
 
 async function deleteAppointment() {
