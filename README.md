@@ -1,6 +1,8 @@
 # Hola bienvenido a este repo ! 😎
 # ¿Que es Selah-Fisioterapia?
 
+> 🎉 **Release v0.1 disponible.** Para instrucciones de instalación, casos de uso y evidencias, ver [`physio-manager/README.md`](./physio-manager/README.md).
+
 Selah Fisioterapia & Recovery
 🏥 
 
@@ -91,3 +93,20 @@ Proyecto gratuito de Supabase
 Equipo de Desarrrollo 
 **TecHome dev´s**
 - 
+
+---
+
+## 📦 Release v0.1 (T3-03)
+
+Esta primera versión funcional incluye:
+
+- ✅ **5 Casos de Uso** implementados end-to-end (ver [`physio-manager/CASOS_DE_USO.md`](./physio-manager/CASOS_DE_USO.md))
+- ✅ **CRUD completo** validado contra Supabase real (Create, Read, Update, Delete)
+- ✅ **Evidencias de funcionamiento** — 14 capturas en [`physio-manager/evidencias/`](./physio-manager/evidencias/)
+- ✅ **Test E2E automatizado** con Playwright (pasa en 4.8s)
+- ✅ **Documentación completa** de instalación, configuración y troubleshooting
+- ✅ **RLS** (Row Level Security) configurado en Supabase — ver [`physio-manager/supabase_rls_appointments.sql`](./physio-manager/supabase_rls_appointments.sql)
+- ✅ **PWA instalable** desplegada en https://pyshiomanager.online
+
+**Tag GitHub**: `v0.1` — ver [Releases](https://github.com/whoami-avi/selah-fisioterapia/releases).
+

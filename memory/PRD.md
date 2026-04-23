@@ -72,3 +72,24 @@ New files added in `physio-manager/`:
 - P3: Add email notifications
 - P3: GitHub Actions workflow to run `npx playwright test` on every PR.
 
+### Session 4: T3-03 Release v0.1 deliverable (April 23, 2026)
+
+User executed `supabase_rls_appointments.sql` → confirmed via `check_rls.js`:
+- ✅ SELECT from `appointments` works (3 existing rows)
+- ✅ INSERT succeeds (no more 42501)
+- ✅ SELECT-after-INSERT works
+- ✅ DELETE works
+
+Created T3-03 deliverables in `/app/physio-manager/`:
+- `README.md` — comprehensive installation, configuration, troubleshooting, use cases reference
+- `CASOS_DE_USO.md` — 5 CUs documented end-to-end (CU1 Pacientes, CU2 Citas, CU3 Dashboard, CU4 Finanzas, CU5 WhatsApp) with flow, preconditions, postconditions, DB tables and CRUD mappings
+- `evidencias/` — 14 screenshots (desktop + mobile) covering all 5 CUs
+- `evidencias/README.md` — index mapping each screenshot to its CU
+- Root `README.md` updated with Release v0.1 section
+
+Ready for user to:
+- Save to GitHub (push to `main`)
+- Create GitHub Release with tag `v0.1`
+
+## Backlog
+
