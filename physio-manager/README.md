@@ -258,6 +258,8 @@ Principales:
 
 El proyecto incluye tests E2E con **Playwright** que validan el flujo completo de creación/edición/eliminación de citas con reflejo inmediato en el dashboard.
 
+Para el detalle académico completo de los **15 casos de prueba**, **5 tipos de pruebas aplicados**, **tabla de incidencias** y **matriz de trazabilidad pruebas ↔ CUs**, ver **[`T4_Reporte_Pruebas.md`](./T4_Reporte_Pruebas.md)**.
+
 ### Ejecutar los tests
 
 ```bash
@@ -310,6 +312,7 @@ physio-manager/
 ├── dist/                            # Bundle de producción
 │
 ├── CASOS_DE_USO.md                  # Documentación de los 5 CUs
+├── T4_Reporte_Pruebas.md            # Reporte de investigación de pruebas (T4)
 ├── README.md                        # Este archivo
 └── T3-02_Reporte_SGBD.html          # Reporte SGBD (entrega T3-02)
 ```
