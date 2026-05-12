@@ -69,6 +69,10 @@ function initSupabase() {
     if (url && key && window.supabase) {
         supabaseClient = window.supabase.createClient(url, key);
         console.log('✅ Supabase client inicializado');
+        // Inicia el heartbeat keepalive para evitar que Supabase pause el proyecto
+        if (typeof startKeepaliveHeartbeat === 'function') {
+            startKeepaliveHeartbeat();
+        }
         return true;
     }
     console.log('❌ Supabase client NO inicializado');
@@ -118,6 +122,35 @@ function mapAppointmentFromSupabase(a) {
 }
 
 // ===== SUPABASE DATA SERVICE =====
+
+// Keepalive: ping ligero a Supabase para que el proyecto del plan gratuito
+// no se pause por inactividad. Se ejecuta al cargar la app y luego cada 6 horas
+// mientras la pestaña esté abierta. Es complementario al cron de GitHub Actions.
+let _keepaliveInterval = null;
+async function pingSupabaseKeepalive() {
+    if (!supabaseClient) return;
+    try {
+        const { error } = await supabaseClient
+            .from('patients')
+            .select('id', { count: 'exact', head: true })
+            .limit(1);
+        if (error) {
+            console.warn('🏓 Keepalive ping falló:', error.message);
+        } else {
+            console.log('🏓 Keepalive ping ok →', new Date().toISOString());
+        }
+    } catch (e) {
+        console.warn('🏓 Keepalive excepción:', e.message);
+    }
+}
+
+function startKeepaliveHeartbeat() {
+    if (_keepaliveInterval) return; // ya iniciado
+    pingSupabaseKeepalive();
+    // Cada 6 horas
+    _keepaliveInterval = setInterval(pingSupabaseKeepalive, 6 * 60 * 60 * 1000);
+}
+
 async function loadDataFromSupabase() {
     console.log('📡 loadDataFromSupabase - supabaseClient:', !!supabaseClient);
     if (!supabaseClient) {
