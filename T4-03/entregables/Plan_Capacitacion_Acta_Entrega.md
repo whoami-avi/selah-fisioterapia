@@ -1,7 +1,11 @@
 # Plan de Capacitación + Acta de Entrega
 
 **Proyecto:** Selah Fisioterapia & Recovery — v1.0
-**Equipo:** TecHome dev's — Abimael López ([@whoami-avi](https://github.com/whoami-avi))
+**Equipo:** TecHome dev's
+- Jefte Abimael López Jarquín — Líder técnico / Capacitador principal ([@whoami-avi](https://github.com/whoami-avi))
+- Francisco Javier Jijón Cruz — Frontend / Apoyo en demo
+- Adrián de Jesús Avendaño — QA / Soporte técnico de la sesión
+- Perla Emigdalia García Castellanos — Documentación / Manual de usuario
 **Repositorio:** https://github.com/whoami-avi/selah-fisioterapia
 **Demo:** https://pyshiomanager.online
 
@@ -96,7 +100,10 @@ Se hace constar que en la fecha y lugar arriba indicados, **TecHome dev's** entr
 |-----------------|-----|------------------------------|----------|
 | **Dra. Selah Martínez** | Administradora / Propietaria — Cliente receptor | _____________________________ | admin@selah.com · WhatsApp +52 33 ▒▒▒▒ ▒▒▒▒ |
 | **Lupita Hernández** | Asistente de recepción — Usuario operativo | _____________________________ | info@selah.com · WhatsApp +52 33 ▒▒▒▒ ▒▒▒▒ |
-| **Abimael López** | Mantenedor / Capacitador — TecHome dev's | _____________________________ | abimael@techome.dev · GitHub @whoami-avi |
+| **Jefte Abimael López Jarquín** | Líder técnico / Capacitador — TecHome dev's | _____________________________ | GitHub @whoami-avi |
+| **Francisco Javier Jijón Cruz** | Frontend / Apoyo demo — TecHome dev's | _____________________________ | — |
+| **Adrián de Jesús Avendaño** | QA / Soporte técnico — TecHome dev's | _____________________________ | — |
+| **Perla Emigdalia García Castellanos** | Documentación / Manual de usuario — TecHome dev's | _____________________________ | — |
 | **(Opcional) Testigo** | Testigo presencial | _____________________________ | — |
 
 ### Pendientes y limitaciones reconocidos al momento de la entrega

@@ -4,7 +4,11 @@
 **Versión:** v1.0
 **Fecha:** 27 de mayo de 2026
 **Tecnologías:** HTML5 / CSS3 / JavaScript ES6+ (vanilla, sin framework) · Supabase (PostgreSQL 15 + Realtime + Auth) · Service Worker (PWA) · Playwright (testing E2E)
-**Equipo:** TecHome dev's — Abimael López ([@whoami-avi](https://github.com/whoami-avi))
+**Equipo:** TecHome dev's
+- Jefte Abimael López Jarquín — Líder técnico / Backend / Seguridad ([@whoami-avi](https://github.com/whoami-avi))
+- Francisco Javier Jijón Cruz — Frontend / UX / Realtime
+- Adrián de Jesús Avendaño — QA / Testing / Validaciones
+- Perla Emigdalia García Castellanos — Documentación / Capacitación / Plantillas
 **Repositorio:** https://github.com/whoami-avi/selah-fisioterapia
 **Despliegue:** Cloudflare Pages — https://pyshiomanager.online
 
@@ -448,7 +452,8 @@ SUPABASE_URL=... SUPABASE_ANON_KEY=... node check_rls.js
 ### 7.5. Contacto del equipo de desarrollo
 
 - **Issues / bugs:** https://github.com/whoami-avi/selah-fisioterapia/issues
-- **Mantenedor:** Abimael López ([@whoami-avi](https://github.com/whoami-avi))
+- **Mantenedor / Líder técnico:** Jefte Abimael López Jarquín ([@whoami-avi](https://github.com/whoami-avi))
+- **Equipo TecHome dev's:** Francisco Javier Jijón Cruz · Adrián de Jesús Avendaño · Perla Emigdalia García Castellanos
 - **Mantenimiento futuro:** todo cambio se documenta en el `CHANGELOG.md` y se etiqueta con versión semver (`v1.x.y`).
 
 ---

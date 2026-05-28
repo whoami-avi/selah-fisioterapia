@@ -4,7 +4,7 @@
 | Campo | Valor |
 |-------|-------|
 | **Equipo** | TecHome dev's |
-| **Integrante** | Abimael Lopez ([@whoami-avi](https://github.com/whoami-avi)) |
+| **Integrantes** | • Jefte Abimael López Jarquín (Líder técnico / Backend / Seguridad — [@whoami-avi](https://github.com/whoami-avi))<br>• Francisco Javier Jijón Cruz (Frontend / UX / Realtime)<br>• Adrián de Jesús Avendaño (QA / Testing / Validaciones)<br>• Perla Emigdalia García Castellanos (Documentación / Capacitación / Plantillas) |
 | **Materia** | Pruebas de Software (T4) |
 | **Repositorio** | https://github.com/whoami-avi/selah-fisioterapia |
 | **Demo** | https://pyshiomanager.online |
@@ -105,7 +105,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P1 |
 | **Estado** | ✅ Cerrada |
 | **Causa probable** | Triple causa raíz: (a) `saveAppointment()` no usaba `await` antes de `renderDashboard()`; (b) `refreshCurrentSection()` no contemplaba la sección `dashboard`; (c) el fallback local hacía `push` sin pasar por `mapAppointmentFromSupabase()`. |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Francisco Javier Jijón Cruz |
 
 ---
 
@@ -127,7 +127,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P1 |
 | **Estado** | ✅ Cerrada |
 | **Causa probable** | Faltaba la policy de **INSERT** para el rol `anon` en la tabla `appointments`. Solo existía policy de SELECT. Resuelto con `supabase_rls_appointments.sql`. |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Jefte Abimael López Jarquín |
 
 ---
 
@@ -149,7 +149,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P2 |
 | **Estado** | ✅ Cerrada |
 | **Causa probable** | `saveAppointment()` no deshabilitaba `submitBtn` ni mostraba spinner antes del `await`; los inputs tampoco se bloqueaban. Resuelto en `app.js:2462-2469`. |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Francisco Javier Jijón Cruz |
 
 ---
 
@@ -171,7 +171,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P3 |
 | **Estado** | 🔄 En proceso |
 | **Causa probable** | Falta llamar `renderFinanceDashboard()` dentro del callback de `updateAppointmentInSupabase()` y dentro del `.on('postgres_changes')` de realtime. |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Francisco Javier Jijón Cruz |
 
 ---
 
@@ -193,7 +193,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P3 |
 | **Estado** | 🆕 Nueva |
 | **Causa probable** | `renderDashboard()` destruye y reconstruye todo el DOM en lugar de hacer diffing incremental. Cada evento realtime dispara un re-render completo. |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Francisco Javier Jijón Cruz |
 
 ---
 
@@ -215,7 +215,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P1 |
 | **Estado** | 🆕 Nueva |
 | **Causa probable** | El proyecto nunca implementó hashing. Los defaults se hardcodearon en plain text y la función `handleLogin()` admite ambas formas para "compatibilidad". |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Jefte Abimael López Jarquín |
 
 ---
 
@@ -237,7 +237,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P1 |
 | **Estado** | 🆕 Nueva |
 | **Causa probable** | Uso sistemático de `container.innerHTML = \`...${userData}...\`` sin sanitización. No se usa `textContent` ni `DOMPurify` ni se escapa HTML. |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Jefte Abimael López Jarquín |
 
 ---
 
@@ -259,7 +259,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P2 |
 | **Estado** | 🆕 Nueva |
 | **Causa probable** | `app.js:1384` y `app.js:1396` hacen `patient.phone.replace(/\D/g,'')` sin verificar primero si `phone` existe. El formulario permite `phone` vacío porque no está marcado como obligatorio. |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Perla Emigdalia García Castellanos |
 
 ---
 
@@ -281,7 +281,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P2 |
 | **Estado** | 🆕 Nueva |
 | **Causa probable** | `app.js` usa `String.prototype.replace()` en lugar de `replaceAll()` o regex con flag `/g`. Por defecto `replace` sin regex global solo sustituye la primera coincidencia. |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Perla Emigdalia García Castellanos |
 
 ---
 
@@ -303,7 +303,7 @@ Orden de corrección sugerido para v0.2 (siguiente release):
 | **Prioridad** | P2 |
 | **Estado** | 🆕 Nueva |
 | **Causa probable** | `saveAppointment()` (`app.js:2454`) no consulta el array `appointments` para detectar solapamientos antes del INSERT. No hay índice único compuesto `(date, time)` en la DB. |
-| **Responsable** | Abimael Lopez (@whoami-avi) |
+| **Responsable** | Adrián de Jesús Avendaño |
 
 ---
 

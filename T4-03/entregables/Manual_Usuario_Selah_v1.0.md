@@ -16,7 +16,7 @@
 | **Versión** | v1.0 |
 | **Fecha** | 27-mayo-2026 |
 | **Dirigido a** | Administrador (acceso total) · Asistente de recepción (acceso limitado) |
-| **Equipo de desarrollo** | TecHome dev's — Abimael López |
+| **Equipo de desarrollo** | TecHome dev's: Jefte Abimael López Jarquín · Francisco Javier Jijón Cruz · Adrián de Jesús Avendaño · Perla Emigdalia García Castellanos |
 | **Soporte** | https://github.com/whoami-avi/selah-fisioterapia/issues |
 
 ---
@@ -231,7 +231,7 @@ Porque tu rol es *asistente*. Los datos financieros solo son visibles para el ro
 Los datos viven en Supabase (PostgreSQL en la nube) con Row Level Security activado para `appointments`. La conexión es por HTTPS. Recomendaciones: cambia las contraseñas por defecto, no compartas tu cuenta y cierra sesión cuando dejes la computadora desatendida.
 
 **¿Quién mantiene el sistema?**
-TecHome dev's — Abimael López. Para reportar bugs o pedir nuevas funciones, abre un Issue en https://github.com/whoami-avi/selah-fisioterapia/issues o contacta directamente al equipo.
+TecHome dev's (equipo de 4 integrantes: Jefte Abimael López Jarquín, Francisco Javier Jijón Cruz, Adrián de Jesús Avendaño y Perla Emigdalia García Castellanos). Para reportar bugs o pedir nuevas funciones, abre un Issue en https://github.com/whoami-avi/selah-fisioterapia/issues o contacta directamente al equipo.
 
 **¿Cada cuánto se actualiza?**
 La próxima versión (v1.1) está planeada con mejoras de seguridad, exportes y notificaciones push. Verás un aviso en la app cuando esté lista.

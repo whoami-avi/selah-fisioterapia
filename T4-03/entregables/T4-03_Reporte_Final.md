@@ -13,7 +13,7 @@
 |-------|-------|
 | **Proyecto** | Selah Fisioterapia & Recovery — Sistema integral de gestión clínica (PWA) |
 | **Equipo** | TecHome dev's |
-| **Integrante** | Abimael López ([@whoami-avi](https://github.com/whoami-avi)) |
+| **Integrantes** | • Jefte Abimael López Jarquín — Líder técnico / Backend / Seguridad ([@whoami-avi](https://github.com/whoami-avi))<br>• Francisco Javier Jijón Cruz — Frontend / UX / Realtime<br>• Adrián de Jesús Avendaño — QA / Testing / Validaciones<br>• Perla Emigdalia García Castellanos — Documentación / Capacitación / Plantillas |
 | **Materia** | Pruebas e Implantación de Software (Tema 4) |
 | **Fecha** | 27 de mayo de 2026 |
 | **Versión liberada** | **v1.0** (release final) |
